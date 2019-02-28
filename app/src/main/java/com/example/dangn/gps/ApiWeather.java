@@ -76,7 +76,7 @@ public class ApiWeather {
 
             }
         });
-        Log.d("test",weather.getWeatherIcon()+"");
+        Log.d("test","Đặng Phương Nam");
         return weather;
     }
     public interface UpdatateView{
