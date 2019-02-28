@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:weightSum="10"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_weight="4"
+        android:layout_width="match_parent"
+        android:weightSum="10"
+        android:background="@color/colorWhiteOpacity"
+        android:layout_margin="10dp"
+        android:layout_height="0dp">
+        <LinearLayout
+
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_weight="7"
+            android:layout_width="match_parent"
+
+            android:layout_height="0dp">
+            <TextView
+                android:id="@+id/tv_weathercurren_temp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:textSize="80sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/colorWhite"
+                android:text="20°"
+                android:layout_height="match_parent" />
+            <ImageView
+                android:id="@+id/iv_weathercurren_icon"
+                android:padding="15dp"
+                android:src="@drawable/sun"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <LinearLayout
+            android:weightSum="2"
+            android:layout_weight="3"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+            <TextView
+                android:id="@+id/tv_weathercurren_main"
+                android:gravity="center"
+                android:text="trời quang"
+                android:textColor="@color/colorWhite"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/tv_weathercurren_tempmaxmin"
+                android:gravity="center"
+                android:text="↑ 20° ↓ 20°"
+                android:textColor="@color/colorWhite"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </LinearLayout>
+    <TextView
+        android:layout_weight="0.5"
+        android:textColor="@color/colorWhite"
+        android:text="CHI TIẾT"
+        android:textStyle="bold"
+        android:paddingLeft="10dp"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_weathercurren"
+        android:background="@color/colorWhiteOpacity"
+        android:layout_margin="10dp"
+        android:layout_weight="5.5"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"></android.support.v7.widget.RecyclerView>
+</LinearLayout>
