@@ -100,7 +100,7 @@ public class ApiWeather {
                     JSONArray array = response.getJSONArray("list");
                     DateFormat dateFormat = new SimpleDateFormat("yyy-MM-dd hh:mm:ss");
                     for (int i=0;i<array.length();i++){
-                        if(i%8==0){
+                        if(i%8==4){
                             weather = new Weather();
                             JSONObject object = array.getJSONObject(i);
                             JSONObject mainObject = object.getJSONObject("main");

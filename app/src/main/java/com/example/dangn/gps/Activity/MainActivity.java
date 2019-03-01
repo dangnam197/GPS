@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "You need to enable permissions to display location !", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(this, "You need to enable permissions to display location !", Toast.LENGTH_SHORT).show();
         }
 
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void update(Weather weather) {
-        Toast.makeText(this,weather.getWindSpeed()+"",Toast.LENGTH_LONG).show();
+        //Toast.makeText(this,weather.getWindSpeed()+"",Toast.LENGTH_LONG).show();
         this.weather = weather;
         setDataFrament();
     }
@@ -394,13 +394,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void updateNextDays(ArrayList<Weather> listNextDays) {
         this.listWeathers = listNextDays;
-        Toast.makeText(this,listNextDays.get(0).getWeatherMain()+"",Toast.LENGTH_LONG).show();
+       // Toast.makeText(this,listNextDays.get(0).getWeatherMain()+"",Toast.LENGTH_LONG).show();
         setDataFrament();
     }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        Toast.makeText(getApplicationContext(),query+" submit",Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(),query+" submit",Toast.LENGTH_LONG).show();
         return false;
     }
 
