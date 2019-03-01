@@ -1,4 +1,4 @@
-package com.example.dangn.gps;
+package com.example.dangn.gps.Adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

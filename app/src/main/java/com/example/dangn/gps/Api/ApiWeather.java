@@ -1,17 +1,22 @@
-package com.example.dangn.gps;
+package com.example.dangn.gps.Api;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.example.dangn.gps.Model.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 public class ApiWeather {
     private String lat;
@@ -79,8 +84,68 @@ public class ApiWeather {
         Log.d("test","Đặng Phương Nam");
         return weather;
     }
+    public ArrayList<Weather> getWeatherNextDays(){
+        final ArrayList<Weather>list   = new ArrayList<>();
+        Log.d("apiNext",list.size()+"");
+        Log.d("api", "Latitude : " + lat + "\nLongitude : " + lon);
+        AndroidNetworking.get("http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&APPID=e2481ae3890b1600d08fa8bce7b99ee3").addPathParameter("lon", lon).addPathParameter("lat", lat).addQueryParameter("limit", "3").addHeaders("token", "1234").setTag("test")
+                .setPriority(Priority.LOW)
+                .build().getAsJSONObject(new JSONObjectRequestListener() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    Weather weather ;
+                    Log.d("apiNext",list.size()+"da chay");
+                    JSONArray array = response.getJSONArray("list");
+                    DateFormat dateFormat = new SimpleDateFormat("yyy-MM-dd hh:mm:ss");
+                    for (int i=0;i<array.length();i++){
+                        if(i%8==0){
+                            weather = new Weather();
+                            JSONObject object = array.getJSONObject(i);
+                            JSONObject mainObject = object.getJSONObject("main");
+                            JSONObject windObject = object.getJSONObject("wind");
+                            JSONArray weatherArray = object.getJSONArray("weather");
+                            weather.setMainHumidity(mainObject.getDouble("humidity"));
+                            weather.setMainPressure(mainObject.getDouble("pressure"));
+                            weather.setMainTemp(mainObject.getDouble("temp"));
+                            weather.setMainTempMax(mainObject.getDouble("temp_max"));
+                            weather.setMainTempMin(mainObject.getDouble("temp_min"));
+                            weather.setWeatherMain(weatherArray.getJSONObject(0).getString("main"));
+                            weather.setWeatherIcon(weatherArray.getJSONObject(0).getString("icon"));
+                            // weather.setWindDeg(windObject.getDouble("deg"));
+                            weather.setWindSpeed(windObject.getDouble("speed"));
+                            String string;
+                            weather.setDate(dateFormat.parse(object.getString("dt_txt")));
+                            Log.d("text", i+" "+object.getString("dt_txt"));
+                            list.add(weather);
+                        }
+
+                    }
+
+                    Log.d("apiNext",list.size()+"");
+                    updatateView.updateNextDays(list);
+
+                } catch (JSONException e) {
+                    Log.d("apiNext","bi loi roi");
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    Log.d("err", "date err ");
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onError(ANError anError) {
+
+            }
+        });
+        return list;
+    }
     public interface UpdatateView{
         public void update(Weather weather);
+        public void updateNextDays(ArrayList<Weather> listNextDays);
     }
 
 }

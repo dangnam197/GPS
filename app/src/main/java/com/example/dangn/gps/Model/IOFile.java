@@ -1,4 +1,4 @@
-package com.example.dangn.gps;
+package com.example.dangn.gps.Model;
 
 import android.content.Context;
 

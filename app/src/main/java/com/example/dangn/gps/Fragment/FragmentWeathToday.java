@@ -1,4 +1,4 @@
-package com.example.dangn.gps;
+package com.example.dangn.gps.Fragment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -15,6 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.dangn.gps.Adapter.AdapterWeatherCurrent;
+import com.example.dangn.gps.Model.Weather;
+import com.example.dangn.gps.R;
 
 import java.util.ArrayList;
 

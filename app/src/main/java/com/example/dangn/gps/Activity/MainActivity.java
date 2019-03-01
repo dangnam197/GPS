@@ -1,10 +1,8 @@
-package com.example.dangn.gps;
+package com.example.dangn.gps.Activity;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -19,6 +17,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -26,48 +27,48 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.common.Priority;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONArrayRequestListener;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.example.dangn.gps.Adapter.AdapterCityWeather;
+import com.example.dangn.gps.Adapter.PagerAdapter;
+import com.example.dangn.gps.Api.ApiWeather;
+import com.example.dangn.gps.Fragment.FragmentWeatherNextdays;
+import com.example.dangn.gps.Model.CityWeather;
+import com.example.dangn.gps.Model.CityWeatherList;
+import com.example.dangn.gps.Fragment.FragmentWeathToday;
+import com.example.dangn.gps.Model.Weather;
+import com.example.dangn.gps.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-
-import okhttp3.OkHttpClient;
 
 public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener,ApiWeather.UpdatateView {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener,ApiWeather.UpdatateView, android.support.v7.widget.SearchView.OnQueryTextListener,AdapterCityWeather.onClickListener {
 
     private Location location;
-   // private TextView locationTv;
     private GoogleApiClient googleApiClient;
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private LocationRequest locationRequest;
     private static final long UPDATE_INTERVAL = 5000, FASTEST_INTERVAL = 5000; // = 5 seconds
-    // lists for permissions
+
+    private double lat;
+    private double lon;
     private ArrayList<String> permissionsToRequest;
     private ArrayList<String> permissionsRejected = new ArrayList<>();
     private ArrayList<String> permissions = new ArrayList<>();
+    private Weather weather;
+    private ArrayList<Weather> listWeathers;
     // integer for permissions results request
     private static final int ALL_PERMISSIONS_RESULT = 1011;
     private Button button;
 
+    private RecyclerView recyclerViewCity;
     private Toolbar toolbar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -75,13 +76,15 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> listTitle;
     private boolean isVisibility=true;
     private ApiWeather apiWeather;
+    private CityWeatherList cityWeatherList;
+    private AdapterCityWeather adapterCityWeather;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        //init();
-        anhxa();
-        setSupportActionBar(toolbar);
+        Toolbar();
+        recylerCityWeather();
+        initFrament();
         permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -105,8 +108,19 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void anhxa(){
-        toolbar = (Toolbar) findViewById(R.id.toolbar_main);
+    private void Toolbar(){
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if(toolbar!=null){
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+    }
+    private void recylerCityWeather(){
+        cityWeatherList = new CityWeatherList(getApplicationContext());
+        recyclerViewCity = findViewById(R.id.rv_cityweather);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerViewCity.setLayoutManager(linearLayoutManager);
+        recyclerViewCity.addItemDecoration(new DividerItemDecoration(recyclerViewCity.getContext(), DividerItemDecoration.VERTICAL));
     }
     private Location getLocation() {
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -170,8 +184,28 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu,menu);
-        return true;
+        menuInflater.inflate(R.menu.search_view,menu);
+        MenuItem searchItem = menu.findItem(R.id.search_view);
+
+        android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) searchItem.getActionView();
+        searchView.setQueryHint("Nhập tỉnh thành");
+        searchView.setOnQueryTextListener(this);
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                visibleRecycler();
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                invisibleRecycler();
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+
+
     }
 
     @Override
@@ -179,16 +213,16 @@ public class MainActivity extends AppCompatActivity
         if(item.getItemId() == R.id.seach){
 //            Intent intent = new Intent(MainActivity.this,SeachActivity.class);
 //            startActivity(intent);
-            if(isVisibility) {
-                viewPager.setVisibility(View.INVISIBLE);
-                tabLayout.setVisibility(View.INVISIBLE);
-                isVisibility=false;
-            }else {
-                viewPager.setVisibility(View.VISIBLE);
-                tabLayout.setVisibility(View.VISIBLE);
-                isVisibility=true;
-            }
-            return true;
+//            if(isVisibility) {
+//                viewPager.setVisibility(View.INVISIBLE);
+//                tabLayout.setVisibility(View.INVISIBLE);
+//                isVisibility=false;
+//            }else {
+//                viewPager.setVisibility(View.VISIBLE);
+//                tabLayout.setVisibility(View.VISIBLE);
+//                isVisibility=true;
+//            }
+//            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -229,6 +263,7 @@ public class MainActivity extends AppCompatActivity
                 Log.d("location", "Latitude : " + location.getLatitude() + "\nLongitude : " + location.getLongitude());
                 apiWeather =  new ApiWeather(location.getLatitude(),location.getLongitude(),getApplicationContext(),this);
                 apiWeather.getWeatherCurrent();
+                apiWeather.getWeatherNextDays();
             }
 
         }
@@ -306,15 +341,23 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
     }
-    private void init(Weather weather){
+    public void initFrament(){
+        weather = new Weather();
+        listWeathers = new ArrayList<>();
+    }
+    private void setDataFrament(){
         listFragment = new ArrayList<>();
         listTitle = new ArrayList<>();
         listFragment.add(new FragmentWeathToday(weather));
-        listFragment.add(new FragmentWeathToday(weather));
-        listTitle.add("tab1");
-        listTitle.add("tab2");
+        listFragment.add(new FragmentWeatherNextdays(listWeathers));
+        listTitle.add("Hiện tại");
+        listTitle.add("Những ngày tới");
         viewPager = findViewById(R.id.vp_test);
         tabLayout = findViewById(R.id.tl_test);
+        if(!isVisibility){
+            viewPager.setVisibility(View.INVISIBLE);
+            tabLayout.setVisibility(View.INVISIBLE);
+        }
         FragmentManager fragmentManager = getSupportFragmentManager();
         PagerAdapter pagerAdapter = new PagerAdapter(fragmentManager,listFragment,listTitle);
         viewPager.setAdapter(pagerAdapter);
@@ -343,7 +386,58 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void update(Weather weather) {
-        Toast.makeText(this,weather.getWeatherMain()+"",Toast.LENGTH_LONG).show();
-        init(weather);
+        Toast.makeText(this,weather.getWindSpeed()+"",Toast.LENGTH_LONG).show();
+        this.weather = weather;
+        setDataFrament();
+    }
+
+    @Override
+    public void updateNextDays(ArrayList<Weather> listNextDays) {
+        this.listWeathers = listNextDays;
+        Toast.makeText(this,listNextDays.get(0).getWeatherMain()+"",Toast.LENGTH_LONG).show();
+        setDataFrament();
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        Toast.makeText(getApplicationContext(),query+" submit",Toast.LENGTH_LONG).show();
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        if(newText.length()>1){
+
+            adapterCityWeather = new AdapterCityWeather(getApplicationContext(),cityWeatherList.seachCity(newText));
+            adapterCityWeather.setOnclickListener(this);
+            recyclerViewCity.setAdapter(adapterCityWeather);
+        }
+        return false;
+    }
+    private void invisibleRecycler(){
+        if(!isVisibility&&viewPager!=null&&tabLayout!=null){
+            viewPager.setVisibility(View.VISIBLE);
+            tabLayout.setVisibility(View.VISIBLE);
+        }
+        isVisibility = true;
+        recyclerViewCity.setVisibility(View.INVISIBLE);
+    }
+    private void visibleRecycler(){
+        if(isVisibility&&viewPager!=null&&tabLayout!=null){
+            viewPager.setVisibility(View.INVISIBLE);
+            tabLayout.setVisibility(View.INVISIBLE);
+        }
+        isVisibility = false;
+        recyclerViewCity.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void itemClick(View v, int poisition,CityWeather cityWeather) {
+        lat = cityWeather.getLat();
+        lon = cityWeather.getLon();
+        apiWeather = new ApiWeather(lat,lon,getApplicationContext(),this);
+        apiWeather.getWeatherCurrent();
+        apiWeather.getWeatherNextDays();
+        toolbar.collapseActionView();
     }
 }

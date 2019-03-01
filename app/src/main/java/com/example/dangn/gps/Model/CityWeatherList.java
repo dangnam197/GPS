@@ -1,13 +1,16 @@
-package com.example.dangn.gps;
+package com.example.dangn.gps.Model;
 
 import android.content.Context;
+
+import com.example.dangn.gps.Model.CityWeather;
+import com.example.dangn.gps.Model.IOFile;
+import com.example.dangn.gps.VNCharacterUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 public class CityWeatherList {
     private ArrayList<CityWeather> list;

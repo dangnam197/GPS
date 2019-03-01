@@ -1,4 +1,4 @@
-package com.example.dangn.gps;
+package com.example.dangn.gps.Model;
 
 public class CityWeather {
     private int id;

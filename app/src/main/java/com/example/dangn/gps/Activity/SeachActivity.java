@@ -1,4 +1,4 @@
-package com.example.dangn.gps;
+package com.example.dangn.gps.Activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,10 +10,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.dangn.gps.Adapter.AdapterWeatherCurrent;
+import com.example.dangn.gps.Model.CityWeather;
+import com.example.dangn.gps.Model.CityWeatherList;
+import com.example.dangn.gps.R;
+
 import java.util.ArrayList;
 
 public class SeachActivity extends AppCompatActivity {
-    private  CityWeatherList cityWeatherList;
+    private CityWeatherList cityWeatherList;
     private EditText edtSeach;
     private Button btnSeach;
     private RecyclerView rvCity;
