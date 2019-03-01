@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,18 +68,20 @@ public class MainActivity extends AppCompatActivity
     private static final int ALL_PERMISSIONS_RESULT = 1011;
     private Button button;
 
+    private Toolbar toolbar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private ArrayList<Fragment> listFragment;
     private ArrayList<String> listTitle;
-
+    private boolean isVisibility=true;
     private ApiWeather apiWeather;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         //init();
-
+        anhxa();
+        setSupportActionBar(toolbar);
         permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -102,7 +105,9 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
+    private void anhxa(){
+        toolbar = (Toolbar) findViewById(R.id.toolbar_main);
+    }
     private Location getLocation() {
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -172,8 +177,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.seach){
-            Intent intent = new Intent(MainActivity.this,SeachActivity.class);
-            startActivity(intent);
+//            Intent intent = new Intent(MainActivity.this,SeachActivity.class);
+//            startActivity(intent);
+            if(isVisibility) {
+                viewPager.setVisibility(View.INVISIBLE);
+                tabLayout.setVisibility(View.INVISIBLE);
+                isVisibility=false;
+            }else {
+                viewPager.setVisibility(View.VISIBLE);
+                tabLayout.setVisibility(View.VISIBLE);
+                isVisibility=true;
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
