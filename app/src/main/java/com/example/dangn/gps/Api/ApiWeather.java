@@ -81,7 +81,7 @@ public class ApiWeather {
 
             }
         });
-        Log.d("test","Đặng Phương Nam");
+        Log.d("test","Đặng Phương Nam ---- test -----");
         return weather;
     }
     public ArrayList<Weather> getWeatherNextDays(){
